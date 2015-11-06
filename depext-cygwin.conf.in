@@ -1,0 +1,14 @@
+(* Root folder of your cygwin installation *)
+cygwin_root = "@CYGWIN_ROOT@"
+
+(* your cygwin architecture: cygwin-x86 or x86_64 *)
+cygwin_arch = "@CYGWIN_ARCH@"
+
+(*  your mingw-toolchain: mingw32 or mingw64 *)
+mingw_arch = "@MINGW_ARCH@"
+
+(* mirror cygwin *)
+mirror_cygwin = "ftp://ftp-stud.hs-esslingen.de/pub/Mirrors/sources.redhat.com/cygwin/"
+
+(* mirror cygwinports *)
+mirror_ports = "ftp://ftp.gwdg.de/pub/linux/sources.redhat.com/cygwinports/"
