@@ -96,10 +96,10 @@ let bin_dir = Filename.dirname Sys.executable_name
 let etc_dir = (Filename.dirname bin_dir) // "etc"
 
 let get_cywin_args config =
-  let key = Filename.concat etc_dir "ports.gpg" in
-  [ "-K" ; winpath key ; "-W"; "-B" ; "-R" ; winpath config.cygwin_root ;
+  (* let key = Filename.concat etc_dir "ports.gpg" in *)
+  [ (* "-K" ; winpath key ;*) "-W"; "-B" ; "-R" ; winpath config.cygwin_root ;
     "-l" ; winpath (config.cygwin_root // "packages") ;
-    "-n" ; "-s" ; config.mirror_cygports ;
+    "-n" ; (* "-s" ; config.mirror_cygports ; *)
     "-s" ; config.mirror_cygwin ]
 
 let gui config =
