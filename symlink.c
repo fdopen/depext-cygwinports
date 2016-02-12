@@ -127,9 +127,26 @@ main(int argc, char **argv)
   int i;
   const int nargc = argc == 0 ? (argc + 2) : (argc + 1);
   int code;
+  int pkg_config_is_binary = 0;
+  DWORD bin;
+  char * pkg_config = PKG_CONFIG;
+
+  if  ( GetBinaryType (pkg_config, &bin) ){
+    switch(bin){
+    case SCS_32BIT_BINARY: /* fall */
+    case SCS_64BIT_BINARY: /* fall */
+    case SCS_DOS_BINARY: /* fall */
+    case SCS_WOW_BINARY: /* fall */
+      pkg_config_is_binary = 1;
+    }
+  }
+  if ( pkg_config_is_binary == 0 ){
+    fputs("pkg-config ist not installed. Install it with 'opam depext conf-pkg-config'\n",stderr);
+    exit(2);
+  }
 
   new_argv = xmalloc(nargc * sizeof (char *) );
-  new_argv[0] = PKG_CONFIG;
+  new_argv[0] = pkg_config;
   for ( i=1 ; i < argc ; ++i ){
     new_argv[i] = argv[i];
   }

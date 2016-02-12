@@ -35,9 +35,9 @@ if [ ! -f "cygwin-dl.exe" ]; then
 fi
 
 if [ "$mingw_arch" = "mingw64" ]; then
-    help="$(cygpath -m /usr/bin/x86_64-w64-mingw32-pkg-config | sed 's|/|\\\\\\\\|g')"
+    help="$(cygpath -m /usr/bin/x86_64-w64-mingw32-pkg-config.exe | sed 's|/|\\\\\\\\|g')"
 else
-    help="$(cygpath -m /usr/bin/i686-w64-mingw32-pkg-config | sed 's|/|\\\\\\\\|g')"
+    help="$(cygpath -m /usr/bin/i686-w64-mingw32-pkg-config.exe | sed 's|/|\\\\\\\\|g')"
 fi
 sed "s|@PKG_CONFIG@|$help|g" config.h.in >config.h
 
