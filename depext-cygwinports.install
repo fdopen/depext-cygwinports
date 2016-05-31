@@ -1,0 +1,27 @@
+bin: [
+ "?addr2line.exe"
+ "?ar.exe"
+ "?as.exe"
+ "?cc.exe"
+ "?cpp.exe"
+ "?dlltool.exe"
+ "?dllwrap.exe"
+ "?g++.exe"
+ "?gcc.exe"
+ "?gcov"
+ "?ld.exe"
+ "?nm.exe"
+ "?objcopy.exe"
+ "?objdump.exe"
+ "?ranlib.exe"
+ "?strings.exe"
+ "?strip.exe"
+ "?windres.exe"
+ "cygwin-dl.exe"
+ "cygwin-install.exe"
+ "pkg-config.exe"
+]
+etc: [
+ "depext-cygwin.conf"
+ "ports.gpg"
+]

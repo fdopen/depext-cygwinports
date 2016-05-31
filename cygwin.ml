@@ -120,7 +120,7 @@ let winpath s =
   Str.global_replace slash_rex "\\\\" s
 
 let bin_dir = Filename.dirname Sys.executable_name
-let etc_dir = (Filename.dirname bin_dir) // "etc"
+let etc_dir = (Filename.dirname bin_dir) // "etc" // "depext-cygwinports"
 
 let get_cywin_args config =
   (* let key = Filename.concat etc_dir "ports.gpg" in *)

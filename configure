@@ -46,3 +46,19 @@ sed \
     -e "s|@CYGWIN_ARCH@|${cygwin_arch}|g" \
     -e "s|@MINGW_ARCH@|${mingw_arch}|g" \
     depext-cygwin.conf.in > depext-cygwin.conf
+
+
+if [ "$mingw_arch" = "mingw64" ]; then
+    toolkit_prefix='x86_64-w64-mingw32-'
+else
+    toolkit_prefix='i686-w64-mingw32-'
+fi
+bin_path="$(cygpath -m /bin | sed 's|/|\\\\\\\\|g')"
+
+for prog in addr2line ar as cc cpp dlltool dllwrap g++ gcc gcov ld nm objcopy objdump ranlib strings strip windres ; do
+    /bin/sed \
+        -e "s|@TOOLKIT_PREFIX@|${toolkit_prefix}|g" \
+        -e "s|@PROG@|${prog}|g" \
+        -e "s|@BIN_PATH@|${bin_path}|g" \
+        symlink2.c > "${prog}.c"
+done

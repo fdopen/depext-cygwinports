@@ -153,7 +153,7 @@ main(int argc, char **argv)
   new_argv[nargc-1] = NULL;
   new_argv_real = prepare_spawn(new_argv);
 
-  code = _spawnv(_P_WAIT, new_argv_real[0] , (const char **) new_argv_real );
+  code = _spawnv(_P_WAIT, pkg_config , (const char **) new_argv_real );
   if (code == -1) {
     perror("Cannot exec pkg-config");
     exit(127);
