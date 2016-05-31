@@ -129,12 +129,20 @@ let get_cywin_args config =
     "-n" ; (* "-s" ; config.mirror_cygports ; *)
     "-s" ; config.mirror_cygwin ]
 
-let gui config =
+let gui config pkgs=
   let cygwin_setup = bin_dir // "cygwin-dl.exe" in
-  let args = cygwin_setup::(get_cywin_args config) in
+  let args = cygwin_setup::"-g"::(get_cywin_args config) in
+  let args = match pkgs with
+  | [] -> args
+  | _ -> args @ ["-P"; String.concat "," pkgs] in
   let run = config.cygwin_root // "bin" // "run.exe" in
-  let ec = Run.run run args in
-  exit (ec)
+  if Sys.file_exists run = false then (
+    Printf.eprintf "Sorry: %s is missing, please install it manually\n%!" run;
+    exit 2
+  );
+  let args = Array.of_list (run::args) in
+  let _pid = Unix.create_process run args Unix.stdin Unix.stdout Unix.stderr in
+  exit 0
 
 let install config ipkgs =
   let f () =
@@ -224,7 +232,7 @@ let () =
   in
   match Array.to_list Sys.argv with
   | [] | _::[] -> print_usage ()
-  | _::"gui"::[] -> gui config;
+  | _::"gui"::pkgs -> gui config pkgs;
   | _::"list"::[] -> print_list config.mingw_arch
   | _::"install"::pkgs ->
     (try
