@@ -80,7 +80,7 @@ let get_config fln =
     f ~key:"mingw_arch" ~def:"mingw" "your mingw-toolchain: mingw32 or mingw64" in
   let cyg_mirror =
     f
-      ~def:"ftp://ftp-stud.hs-esslingen.de/pub/Mirrors/sources.redhat.com/cygwin/"
+      ~def:"http://cygwin.mirror.constant.com/"
       ~key:"mirror_cygwin"
       "cygwin mirror for downloads"
   in

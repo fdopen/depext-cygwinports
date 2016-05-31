@@ -8,7 +8,7 @@ cygwin_arch = "@CYGWIN_ARCH@"
 mingw_arch = "@MINGW_ARCH@"
 
 (* mirror cygwin *)
-mirror_cygwin = "ftp://ftp-stud.hs-esslingen.de/pub/Mirrors/sources.redhat.com/cygwin/"
+mirror_cygwin = "http://cygwin.mirror.constant.com/"
 
 (* mirror cygwinports *)
 mirror_ports = "ftp://ftp.gwdg.de/pub/linux/sources.redhat.com/cygwinports/"
