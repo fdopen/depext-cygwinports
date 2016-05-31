@@ -1,3 +1,5 @@
+let (|>) v f = f v
+
 exception Error of string
 
 type mingw_arch =
