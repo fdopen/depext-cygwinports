@@ -149,7 +149,14 @@ let install config ipkgs =
       let pr = match config.mingw_arch with
       | Mingw64 -> "mingw64-x86_64-"
       | Mingw32 -> "mingw64-i686-" in
-      List.map ( fun x -> pr ^ x ) ipkgs |> String.concat ","
+      let f s =
+        let len = String.length s in
+        if len < 8 || String.sub s 0 7 <> "system:" then
+          pr ^ s
+        else
+          String.sub s 7 (len - 7)
+      in
+      List.map f ipkgs |> String.concat ","
     in
     let args = "-P" :: str_pkgs :: "-q" :: (get_cywin_args config) in
     let ec = Run.run cygwin_setup args in
