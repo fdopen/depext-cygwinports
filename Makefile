@@ -17,7 +17,7 @@ SOURCES= run.mli run.ml cygwin.mli cygwin.ml
 PACKS = str,unix,config-file,bytes
 
 cygwin-install.exe: $(SOURCES)
-	ocamlfind ocamlopt -package $(PACKS) -linkpkg $(SOURCES) -o $@
+	ocamlfind ocamlopt $(OCAMLFLAGS) -package $(PACKS) -linkpkg $(SOURCES) -o $@
 
 pkg-config.exe: symlink.c config.h
 	$(CC) -s symlink.c -o pkg-config.exe

@@ -44,6 +44,28 @@ let get_packages arch =
   Str.split re_newline (Buffer.contents buf) |>
   List.fold_left f (Hashtbl.create 300)
 
+let get_global_urls () =
+  let home = try Sys.getenv "HOME" with Not_found -> "" in
+  if home = "" then None,None
+  else
+    let fln = home // ".config" // "depext-cygwinports" // "urls" in
+    let fln_exists = try Sys.file_exists fln with Sys_error _ -> false in
+    if fln_exists = false then
+      None,None
+    else
+      let open Config_file in
+      let group = new group in
+      let invalid = "invalid" in
+      let f key = new string_cp ~group [key] invalid "no help" in
+      let cyg_mirror = f "mirror_cygwin" in
+      let cyg_ports = f "mirror_ports" in
+      try
+        let () = group#read ~no_default:false fln in
+        let f x = if x = invalid then None else Some x in
+        f cyg_mirror#get, f cyg_ports#get
+      with
+      | Sys_error _ -> None, None
+
 let get_config fln =
   let open Config_file in
   let group = new group in
@@ -80,12 +102,17 @@ let get_config fln =
     | "mingw64" -> Mingw64
     | _ -> raise (Error "invalid mingw_arch in config file")
   in
+  let mirror_default_cygwin,mirror_default_cygports = get_global_urls () in
   {
     cygwin_root;
     cygwin_arch = cyg_arch#get ;
     mingw_arch;
-    mirror_cygports = cyg_ports#get;
-    mirror_cygwin = cyg_mirror#get;
+    mirror_cygports = (match mirror_default_cygports with
+      | Some x -> x
+      | None  -> cyg_ports#get);
+    mirror_cygwin = (match mirror_default_cygwin with
+      | Some x -> x
+      | None -> cyg_mirror#get);
   }
 
 let slash_rex = Str.regexp "/"
