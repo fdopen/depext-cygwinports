@@ -6,6 +6,10 @@ type mingw_arch =
   | Mingw32
   | Mingw64
 
+type pkg =
+  | Mingw of string
+  | System of string
+
 type config = {
   cygwin_root: string;
   cygwin_arch: string;
@@ -23,6 +27,8 @@ let rex_mingw32 =
 let rex_mingw64 =
   Str.regexp "^mingw64-x86_64-\\([^ \t]+\\)[ \t]+\\([^ \t]+\\)[ \t]*"
 
+let rex_system = Str.regexp "^\\([^ \t]+\\)[ \t]+\\([^ \t]+\\)[ \t]*"
+
 let get_packages arch =
   let buf = Buffer.create 8192
   and ebuf = Buffer.create 10 in
@@ -35,16 +41,21 @@ let get_packages arch =
   | Mingw32 -> rex_mingw32
   | Mingw64 -> rex_mingw64
   in
-  let f htl el =
+  let f ((htl,htl2) as both) el =
     if Str.string_match rex el 0 then (
       let a = Str.matched_group 1 el in
       let b = Str.matched_group 2 el in
       Hashtbl.replace htl a b
     );
-    htl
+    if Str.string_match rex_system el 0 then (
+      let a = Str.matched_group 1 el in
+      let b = Str.matched_group 2 el in
+      Hashtbl.replace htl2 a b
+    );
+    both
   in
   Str.split re_newline (Buffer.contents buf) |>
-  List.fold_left f (Hashtbl.create 300)
+  List.fold_left f (Hashtbl.create 32, Hashtbl.create 128)
 
 let get_global_urls () =
   let home = try Sys.getenv "HOME" with Not_found -> "" in
@@ -131,8 +142,17 @@ let get_cywin_args config =
     "-n" ; (* "-s" ; config.mirror_cygports ; *)
     "-s" ; config.mirror_cygwin ]
 
+let strip_version_rex = Str.regexp "^\\(.*\\)-[0-9]"
+
 let gui config pkgs=
   let cygwin_setup = bin_dir // "cygwin-dl.exe" in
+  let rec f s =
+    if Str.string_match strip_version_rex s 0 then
+      Str.matched_group 1 s |> f
+    else
+      s
+  in
+  let pkgs = List.map f pkgs in
   let args = cygwin_setup::"-g"::(get_cywin_args config) in
   let args = match pkgs with
   | [] -> args
@@ -146,10 +166,20 @@ let gui config pkgs=
   let _pid = Unix.create_process run args Unix.stdin Unix.stdout Unix.stderr in
   exit 0
 
+let get_pkg_type s =
+  let len = String.length s in
+  if len < 8 || String.sub s 0 7 <> "system:" then
+    Mingw s
+  else
+    System (String.sub s 7 (len - 7))
+
 let install config ipkgs =
   let f () =
-    let pkgs_now = get_packages config.mingw_arch in
-    fun e -> if Hashtbl.mem pkgs_now e then false else true
+    let pkgs_mingw,pkgs_all = get_packages config.mingw_arch in
+    fun e ->
+      match get_pkg_type e with
+      | Mingw s -> not (Hashtbl.mem pkgs_mingw s)
+      | System s -> not (Hashtbl.mem pkgs_all s)
   in
   match List.filter (f ()) ipkgs with
   | [] -> ()
@@ -160,11 +190,9 @@ let install config ipkgs =
       | Mingw64 -> "mingw64-x86_64-"
       | Mingw32 -> "mingw64-i686-" in
       let f s =
-        let len = String.length s in
-        if len < 8 || String.sub s 0 7 <> "system:" then
-          pr ^ s
-        else
-          String.sub s 7 (len - 7)
+        match get_pkg_type s with
+        | Mingw s -> pr ^ s
+        | System s -> s
       in
       List.map f ipkgs |> String.concat ","
     in
@@ -192,7 +220,7 @@ let print_list arch =
     Buffer.add_string buf b;
     Buffer.add_char buf '\n';
   in
-  get_packages arch |> Hashtbl.iter f;
+  get_packages arch |> fst |> Hashtbl.iter f;
   Buffer.output_buffer stdout buf
 
 let print_usage () =
@@ -210,8 +238,12 @@ let print_usage () =
   exit 1
 
 let print_status arch pkg =
-  let htl = get_packages arch in
-  if Hashtbl.mem htl pkg then (
+  let htl_mingw,htl_system = get_packages arch in
+  let is_installed = match get_pkg_type pkg with
+  | Mingw s -> Hashtbl.mem htl_mingw s
+  | System s -> Hashtbl.mem htl_system s
+  in
+  if is_installed then (
     Printf.printf "installed:%s\n" pkg;
     exit 0
   )
