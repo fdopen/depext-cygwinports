@@ -39,7 +39,8 @@ if [ "$mingw_arch" = "mingw64" ]; then
 else
     help="$(cygpath -m /usr/bin/i686-w64-mingw32-pkg-config.exe | sed 's|/|\\\\\\\\|g')"
 fi
-sed "s|@PKG_CONFIG@|$help|g" config.h.in >config.h
+help2="$(cygpath -m /usr/bin/pkgconf.exe | sed 's|/|\\\\\\\\|g' || echo "")"
+sed "s|@PKG_CONFIG@|$help|g" config.h.in | sed "s|@PKGCONF@|$help2|g" >config.h
 
 sed \
     -e "s|@CYGWIN_ROOT@|${cygwin_root}|g" \

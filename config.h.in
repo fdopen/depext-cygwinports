@@ -1,1 +1,2 @@
 #define PKG_CONFIG "@PKG_CONFIG@"
+#define PKGCONF "@PKGCONF@"

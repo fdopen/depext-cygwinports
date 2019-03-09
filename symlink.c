@@ -119,41 +119,63 @@ prepare_spawn (char **argv)
   return new_argv;
 }
 
+static int is_binary(char * path)
+{
+  DWORD bin;
+  if  ( GetBinaryType (path, &bin) ){
+    switch(bin){
+    case SCS_32BIT_BINARY: /* fall */
+    case SCS_64BIT_BINARY: /* fall */
+    case SCS_DOS_BINARY: /* fall */
+    case SCS_WOW_BINARY: /* fall */
+      return 1;
+    }
+  }
+  return 0;
+}
+
 int
 main(int argc, char **argv)
 {
   char **new_argv;
   char **new_argv_real;
   int i;
-  const int nargc = argc == 0 ? (argc + 2) : (argc + 1);
+  int nargc = argc == 0 ? (argc + 2) : (argc + 1);
   int code;
   int pkg_config_is_binary = 0;
-  DWORD bin;
   char * pkg_config = PKG_CONFIG;
+  char * pkgconf = PKGCONF;
 
-  if  ( GetBinaryType (pkg_config, &bin) ){
-    switch(bin){
-    case SCS_32BIT_BINARY: /* fall */
-    case SCS_64BIT_BINARY: /* fall */
-    case SCS_DOS_BINARY: /* fall */
-    case SCS_WOW_BINARY: /* fall */
-      pkg_config_is_binary = 1;
+  if ( is_binary(pkg_config) ) {
+    new_argv = xmalloc(nargc * sizeof (char *) );
+    new_argv[0] = pkg_config;
+    for ( i=1 ; i < argc ; ++i ){
+      new_argv[i] = argv[i];
     }
+    new_argv[nargc-1] = NULL;
+    new_argv_real = prepare_spawn(new_argv);
+    code = _spawnv(_P_WAIT, pkg_config , (const char **) new_argv_real );
   }
-  if ( pkg_config_is_binary == 0 ){
+  else if ( is_binary(pkgconf) ) {
+    ++nargc;
+    new_argv = xmalloc(nargc * sizeof (char *) );
+    new_argv[0] = pkgconf;
+#ifdef __i386__
+    new_argv[1] = "--personality=i686-w64-mingw32";
+#else
+    new_argv[1] = "--personality=x86_64-w64-mingw32";
+#endif
+    for ( i=1 ; i < argc ; ++i ){
+      new_argv[i+1] = argv[i];
+    }
+    new_argv[nargc-1] = NULL;
+    new_argv_real = prepare_spawn(new_argv);
+    code = _spawnv(_P_WAIT, pkgconf , (const char **) new_argv_real );
+  }
+  else {
     fputs("pkg-config ist not installed. Install it with 'opam depext conf-pkg-config'\n",stderr);
     exit(2);
   }
-
-  new_argv = xmalloc(nargc * sizeof (char *) );
-  new_argv[0] = pkg_config;
-  for ( i=1 ; i < argc ; ++i ){
-    new_argv[i] = argv[i];
-  }
-  new_argv[nargc-1] = NULL;
-  new_argv_real = prepare_spawn(new_argv);
-
-  code = _spawnv(_P_WAIT, pkg_config , (const char **) new_argv_real );
   if (code == -1) {
     perror("Cannot exec pkg-config");
     exit(127);
