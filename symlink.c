@@ -173,7 +173,7 @@ main(int argc, char **argv)
     code = _spawnv(_P_WAIT, pkgconf , (const char **) new_argv_real );
   }
   else {
-    fputs("pkg-config ist not installed. Install it with 'opam depext conf-pkg-config'\n",stderr);
+    fputs("pkg-config is not installed. Install it with 'opam depext conf-pkg-config'\n",stderr);
     exit(2);
   }
   if (code == -1) {
