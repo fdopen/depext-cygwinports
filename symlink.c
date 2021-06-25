@@ -157,16 +157,42 @@ main(int argc, char **argv)
     code = _spawnv(_P_WAIT, pkg_config , (const char **) new_argv_real );
   }
   else if ( is_binary(pkgconf) ) {
-    ++nargc;
-    new_argv = xmalloc(nargc * sizeof (char *) );
-    new_argv[0] = pkgconf;
+    int do_add_prefix = 1;
+    if ( argc < 2 ) {
+      do_add_prefix = 0 ;
+    }
+    else {
+      for ( i=1; i < argc ; ++i ) {
+        char * cur = argv[i];
+        if ( strcmp(cur,"--help") == 0 ||
+             strcmp(cur,"-h") == 0 ||
+             strcmp(cur,"--about") == 0 ||
+             strcmp(cur,"--atleast-pkgconfig-version") == 0 ||
+             strcmp(cur,"--version") == 0 ) {
+          do_add_prefix = 0 ;
+          break ;
+        }
+      }
+    }
+    if ( do_add_prefix ) {
+      ++nargc;
+      new_argv = xmalloc(nargc * sizeof (char *) );
+      new_argv[0] = pkgconf;
 #ifdef __i386__
-    new_argv[1] = "--personality=i686-w64-mingw32";
+      new_argv[1] = "--personality=i686-w64-mingw32";
 #else
-    new_argv[1] = "--personality=x86_64-w64-mingw32";
+      new_argv[1] = "--personality=x86_64-w64-mingw32";
 #endif
-    for ( i=1 ; i < argc ; ++i ){
-      new_argv[i+1] = argv[i];
+      for ( i=1 ; i < argc ; ++i ) {
+        new_argv[i+1] = argv[i];
+      }
+    }
+    else {
+      new_argv = xmalloc(nargc * sizeof (char *) );
+      new_argv[0] = pkgconf;
+      for ( i=1 ; i < argc ; ++i ){
+        new_argv[i] = argv[i];
+      }
     }
     new_argv[nargc-1] = NULL;
     new_argv_real = prepare_spawn(new_argv);
