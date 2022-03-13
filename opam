@@ -1,18 +1,21 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "andreashauptmann@t-online.de"
 authors: [ "andreashauptmann@t-online.de" ]
 license: "Boost Software License"
 homepage: "https://github.com/fdopen/depext-cygwinports"
-dev-repo: "https://github.com/fdopen/depext-cygwinports.git"
+dev-repo: "git+https://github.com/fdopen/depext-cygwinports.git"
 bug-reports: "https://github.com/fdopen/depext-cygwinports/issues"
 build: [
+ ["patch" "-p1" "run.ml" "ocaml-4.02.0.patch"] {ocaml:version >= "4.02.0"}
+ ["patch" "-p1" "cygwin.ml" "ocaml-4.03.0.patch"] {ocaml:version >= "4.03.0"}
+ ["patch" "-p1" "config_file.ml" "ocaml-4.03.0-2.patch"] {ocaml:version >= "4.03.0"}
+ ["patch" "-p1" "run.ml" "ocaml-4.04.0.patch"] {ocaml:version >= "4.04.0"}
  [ "./configure" ]
  [ make "-j%{jobs}%" "all" ]
  [ make "-j%{jobs}%" "wrappers" ] {depext-cygwinports-install-wrappers}
 ]
 depends: [
-  "config-file" {build}
-  "base-bytes" {build}
+  "ocaml" {build}
 ]
 post-messages: [
  "Don't forget to add either /usr/x86_64-w64-mingw32/sys-root/mingw/bin (or
@@ -20,3 +23,4 @@ post-messages: [
  Otherwise many packages can't be built." {success & os = "win32" }
 ]
 available: [ os = "win32" ]
+synopsis: "obsolete depext wrapper for windows"

@@ -16,12 +16,12 @@ WRAPPERS=addr2line.exe ar.exe as.exe cc.exe cpp.exe dlltool.exe dllwrap.exe g++.
 
 wrappers: $(WRAPPERS)
 
-SOURCES= run.mli run.ml cygwin.mli cygwin.ml
+SOURCES= config_file.mli config_file.ml run.mli run.ml cygwin.mli cygwin.ml
 
-PACKS = str,unix,config-file,bytes
+PACKS = str.cmxa unix.cmxa
 
 cygwin-install.exe: $(SOURCES)
-	ocamlfind ocamlopt $(OCAMLFLAGS) -package $(PACKS) -linkpkg $(SOURCES) -o $@
+	ocamlopt $(OCAMLFLAGS) $(PACKS) $(SOURCES) -o $@
 
 pkg-config.exe: symlink.c config.h
 	$(CC) -s symlink.c -o pkg-config.exe

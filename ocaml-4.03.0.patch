@@ -1,0 +1,11 @@
+--- a/cygwin.ml
++++ b/cygwin.ml
+@@ -110,7 +110,7 @@ let get_config fln =
+   if Sys.is_directory cygwin_root = false then
+     raise (Error "invalid cygwin_root in config_file");
+   let mingw_arch =
+-    match String.lowercase mingw_arch#get with
++    match String.lowercase_ascii mingw_arch#get with
+     | "mingw" | "mingw32" -> Mingw32
+     | "mingw64" -> Mingw64
+     | _ -> raise (Error "invalid mingw_arch in config file")

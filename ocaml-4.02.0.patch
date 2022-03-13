@@ -1,0 +1,22 @@
+--- a/run.ml
++++ b/run.ml
+@@ -104,7 +104,7 @@ let str_buffer_len = 8192 (* 32768 *)
+ 
+ 
+ let run ?(env=U.environment ()) ?(stdin=`Null) ?(stderr=`Stderr) ?(stdout=`Stdout) prog args : int =
+-  let tmp_str = String.create str_buffer_len
++  let tmp_str = Bytes.create str_buffer_len
+   and p_stdout_read = new_pipe ()
+   and p_stdout_write = new_pipe ()
+   and p_stderr_read = new_pipe ()
+@@ -193,8 +193,8 @@ let run ?(env=U.environment ()) ?(stdin=`Null) ?(stderr=`Stderr) ?(stdout=`Stdou
+           | `Null
+           | `Stdout
+           | `Stderr -> ()
+-          | `Buffer b -> Buffer.add_substring b tmp_str 0 x
+-          | `Fun (f: string -> unit) -> f (String.sub tmp_str 0 x)
++          | `Buffer b -> Buffer.add_substring b (Bytes.unsafe_to_string tmp_str) 0 x
++          | `Fun (f: string -> unit) -> f (Bytes.sub_string tmp_str 0 x)
+         )
+       in
+       let to_write = match stdin with
